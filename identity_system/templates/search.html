@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Identity</title>
+</head>
+<body>
+<h1>Search Identity</h1>
+<form method="POST">
+    <input type="text" name="query" placeholder="Enter name or email" required>
+    <input type="submit" value="Search">
+</form>
+
+{% if results %}
+    <h2>Results:</h2>
+    <ul>
+    {% for p in results %}
+        <li>{{p[1]}}: {{p[2]}} {{p[3]}} - {{p[4]}} - <a href="/view/{{p[0]}}">View</a> | <a href="/edit/{{p[0]}}">Edit</a></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<a href="/">Home</a>
+</body>
+</html>
