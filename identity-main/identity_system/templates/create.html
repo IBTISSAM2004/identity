@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Create New Identity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .alert-errors {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        
+        <h2 class="mb-4 text-center">Create New Identity</h2>
+
+        <!-- عرض الأخطاء من السيرفر -->
+        {% if errors %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Please fix the following errors:</strong>
+            <ul class="mb-0 mt-2">
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" id="createForm">
+
+            <!-- Identity Type -->
+            <div class="mb-3">
+                <label class="form-label">Identity Type <span class="text-danger">*</span></label>
+                <select name="type" id="type" class="form-select" required>
+                    <option value="">Select Type</option>
+                    <option value="Student" {% if request.form.get('type')=='Student' %}selected{% endif %}>Student</option>
+                    <option value="PhD" {% if request.form.get('type')=='PhD' %}selected{% endif %}>PhD Candidate</option>
+                    <option value="Faculty" {% if request.form.get('type')=='Faculty' %}selected{% endif %}>Faculty Member</option>
+                    <option value="Staff" {% if request.form.get('type')=='Staff' %}selected{% endif %}>Staff Member</option>
+                    <option value="Temporary" {% if request.form.get('type')=='Temporary' %}selected{% endif %}>Temporary</option>
+                </select>
+                <div class="error-message" id="type_error"></div>
+            </div>
+
+            <!-- Name -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">First Name <span class="text-danger">*</span></label>
+                    <input type="text" name="first_name" id="first_name" class="form-control" value="{{request.form.get('first_name','')}}" required>
+                    <div class="error-message" id="first_name_error"></div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" name="last_name" id="last_name" class="form-control" value="{{request.form.get('last_name','')}}" required>
+                    <div class="error-message" id="last_name_error"></div>
+                </div>
+            </div>
+
+            <!-- Birth Information -->
+            <div class="mb-3">
+                <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                <input type="date" name="dob" id="dob" class="form-control" required value="{{request.form.get('dob','')}}">
+                <div class="error-message" id="dob_error"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Place of Birth</label>
+                <input type="text" name="place_of_birth" id="place_of_birth" class="form-control" value="{{request.form.get('place_of_birth','')}}">
+                <div class="error-message" id="place_of_birth_error"></div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nationality</label>
+                    <input type="text" name="nationality" id="nationality" class="form-control" value="{{request.form.get('nationality','')}}">
+                    <div class="error-message" id="nationality_error"></div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Gender</label>
+                    <input type="text" name="gender" id="gender" class="form-control" value="{{request.form.get('gender','')}}">
+                    <div class="error-message" id="gender_error"></div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="mb-3">
+                <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                <input type="email" name="email" id="email" class="form-control" required value="{{request.form.get('email','')}}">
+                <div class="error-message" id="email_error"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" id="phone" class="form-control" placeholder="Only numbers" value="{{request.form.get('phone','')}}">
+                <div class="error-message" id="phone_error"></div>
+            </div>
+
+            <!-- Section: student only -->
+            <div id="studentFields">
+                <h5>Student Information</h5>
+                <div class="mb-3">
+                    <label class="form-label">National ID <span class="text-danger">*</span></label>
+                    <input type="text" name="national_id" id="national_id" class="form-control" value="{{request.form.get('national_id','')}}">
+                    <div class="error-message" id="national_id_error"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">High School Diploma Type</label>
+                    <input type="text" name="diploma_type" id="diploma_type" class="form-control" value="{{request.form.get('diploma_type','')}}">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Diploma Year</label>
+                        <input type="number" name="diploma_year" id="diploma_year" class="form-control" min="1900" max="2100" value="{{request.form.get('diploma_year','')}}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Entry Year</label>
+                        <input type="number" name="entry_year" id="entry_year" class="form-control" min="1900" max="2100" value="{{request.form.get('entry_year','')}}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: faculty only -->
+            <div id="facultyFields">
+                <h5>Faculty Information</h5>
+                <div class="mb-3">
+                    <label class="form-label">Rank</label>
+                    <input type="text" name="faculty_rank" id="faculty_rank" class="form-control" value="{{request.form.get('faculty_rank','')}}">
+                    <div class="error-message" id="faculty_rank_error"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Primary Department</label>
+                    <input type="text" name="primary_department" id="primary_department" class="form-control" value="{{request.form.get('primary_department','')}}">
+                    <div class="error-message" id="primary_department_error"></div>
+                </div>
+            </div>
+
+            <!-- Section: staff only -->
+            <div id="staffFields">
+                <h5>Staff Information</h5>
+                <div class="mb-3">
+                    <label class="form-label">Department</label>
+                    <input type="text" name="staff_department" id="staff_department" class="form-control" value="{{request.form.get('staff_department','')}}">
+                    <div class="error-message" id="staff_department_error"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Job Title</label>
+                    <input type="text" name="job_title" id="job_title" class="form-control" value="{{request.form.get('job_title','')}}">
+                    <div class="error-message" id="job_title_error"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Create Identity
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="/" class="text-decoration-none">Back to Home</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("createForm");
+        const typeSelect = document.getElementById("type");
+
+        // Function to toggle field visibility based on type
+        function toggleFields() {
+            const type = typeSelect.value;
+            document.getElementById("studentFields").style.display = (type === "Student" || type === "PhD") ? "block" : "none";
+            document.getElementById("facultyFields").style.display = (type === "Faculty") ? "block" : "none";
+            document.getElementById("staffFields").style.display = (type === "Staff") ? "block" : "none";
+        }
+
+        // Toggle fields on page load and when type changes
+        toggleFields();
+        typeSelect.addEventListener("change", toggleFields);
+
+        form.addEventListener("submit", function(e) {
+            // مسح الأخطاء السابقة
+            document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
+            let valid = true;
+
+            // التحقق من عدم ترك الحقول فارغة
+            const type = document.getElementById("type").value.trim();
+            if (!type) {
+                document.getElementById("type_error").innerText = "Please select a type";
+                valid = false;
+            }
+
+            const firstName = document.getElementById("first_name").value.trim();
+            if (!firstName) {
+                document.getElementById("first_name_error").innerText = "First name cannot be empty";
+                valid = false;
+            } else if (firstName.length < 2) {
+                document.getElementById("first_name_error").innerText = "First name must be at least 2 characters";
+                valid = false;
+            }
+
+            const lastName = document.getElementById("last_name").value.trim();
+            if (!lastName) {
+                document.getElementById("last_name_error").innerText = "Last name cannot be empty";
+                valid = false;
+            } else if (lastName.length < 2) {
+                document.getElementById("last_name_error").innerText = "Last name must be at least 2 characters";
+                valid = false;
+            }
+
+            const dob = document.getElementById("dob").value;
+            if (!dob) {
+                document.getElementById("dob_error").innerText = "Date of birth cannot be empty";
+                valid = false;
+            } else {
+                const dobDate = new Date(dob);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                dobDate.setHours(0, 0, 0, 0);
+
+                // التحقق من عدم كون التاريخ في المستقبل
+                if (dobDate > today) {
+                    document.getElementById("dob_error").innerText = "Birth date cannot be in the future";
+                    valid = false;
+                } else {
+                    // التحقق من العمر >= 16 للطلبة والدكتوراه والأساتذة
+                    const age = (today - dobDate) / (1000 * 60 * 60 * 24 * 365.25);
+                    if ((type === "Student" || type === "PhD" || type === "Faculty") && age < 16) {
+                        document.getElementById("dob_error").innerText = "You must be at least 16 years old";
+                        valid = false;
+                    }
+                }
+            }
+
+            const email = document.getElementById("email").value.trim();
+            if (!email) {
+                document.getElementById("email_error").innerText = "Email cannot be empty";
+                valid = false;
+            } else {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById("email_error").innerText = "Invalid email format";
+                    valid = false;
+                }
+            }
+
+            const phone = document.getElementById("phone").value.trim();
+            if (phone && !/^\d+$/.test(phone)) {
+                document.getElementById("phone_error").innerText = "Phone must contain only numbers";
+                valid = false;
+            }
+
+            if (!valid) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>
