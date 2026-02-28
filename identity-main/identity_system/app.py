@@ -5,7 +5,45 @@ import os
 import re
 import smtplib
 from email.message import EmailMessage
+from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+import os
+import smtplib
+from email.message import EmailMessage
+
+# ========================
+# Load environment variables
+# ========================
+load_dotenv()
+EMAIL_USER = os.getenv("EMAIL_USER")
+EMAIL_PASS = os.getenv("EMAIL_PASS")
+
+# ========================
+# Send confirmation email
+# ========================
+def send_confirmation(address, uid):
+    msg = EmailMessage()
+    msg['Subject'] = 'Identity Created'
+    msg['From'] = EMAIL_USER
+    msg['To'] = address
+    msg.set_content(f"""Hello,
+
+Your university identity has been successfully created.
+
+Your ID: {uid}
+
+If you did not request this identity, please contact administration.
+
+University Identity Management System
+""")
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(EMAIL_USER, EMAIL_PASS)
+            server.send_message(msg)
+        print(f"Email sent to {address}")
+    except Exception as e:
+        print(f"Email sending failed to {address}: {e}")
 
 print("Current working directory:", os.getcwd())
 print("Templates folder exists:", os.path.exists("templates"))
@@ -126,19 +164,8 @@ def init_db():
 # ========================
 # Generate Unique ID
 # ========================
-def send_confirmation(address, uid):
-    """Send a confirmation email (prints if SMTP not configured)."""
-    msg = EmailMessage()
-    msg['Subject'] = 'Identity Created'
-    msg['From'] = 'no-reply@example.com'
-    msg['To'] = address
-    msg.set_content(f'Your identity has been created. ID: {uid}')
-    try:
-        with smtplib.SMTP('localhost') as s:
-            s.send_message(msg)
-    except Exception:
-        print(f"Confirmation email to {address}: ID {uid}")
 
+  
 
 def generate_id(user_type):
     year = datetime.now().year
@@ -497,3 +524,6 @@ if __name__ == "__main__":
     init_db()
     print("Starting Flask server...")
     app.run(debug=True, host="127.0.0.1", port=5000)
+   
+   
+
