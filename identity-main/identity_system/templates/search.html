@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Search Identity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-card {
+            border-left: 4px solid #0d6efd;
+            transition: transform 0.2s;
+        }
+        .profile-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .badge-type {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.7rem;
+        }
+        .badge-status {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.7rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4 text-center">🔍 Search Identities</h2>
+
+        <!-- Search Form -->
+        <form method="POST" class="mb-4">
+            <div class="row g-2 mb-3">
+                <!-- Name/Email Search -->
+                <div class="col-md-6">
+                    <input type="text" 
+                           name="query" 
+                           class="form-control" 
+                           placeholder="🔎 Search by name or email..."
+                           value="{{ request.form.get('query', '') }}">
+                </div>
+                
+                <!-- Identity Type Filter -->
+                <div class="col-md-3">
+                    <select name="type_filter" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="Student" {% if request.form.get('type_filter') == 'Student' %}selected{% endif %}>Student</option>
+                        <option value="PhD" {% if request.form.get('type_filter') == 'PhD' %}selected{% endif %}>PhD Candidate</option>
+                        <option value="Faculty" {% if request.form.get('type_filter') == 'Faculty' %}selected{% endif %}>Faculty Member</option>
+                        <option value="Staff" {% if request.form.get('type_filter') == 'Staff' %}selected{% endif %}>Staff Member</option>
+                        <option value="Temporary" {% if request.form.get('type_filter') == 'Temporary' %}selected{% endif %}>Temporary</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="col-md-3">
+                    <select name="status_filter" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="Pending" {% if request.form.get('status_filter') == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Active" {% if request.form.get('status_filter') == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Suspended" {% if request.form.get('status_filter') == 'Suspended' %}selected{% endif %}>Suspended</option>
+                        <option value="Inactive" {% if request.form.get('status_filter') == 'Inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="Archived" {% if request.form.get('status_filter') == 'Archived' %}selected{% endif %}>Archived</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Advanced Filters Row -->
+            <div class="row g-2">
+                <!-- Year Filter Input -->
+                <div class="col-md-4">
+                    <input type="number" 
+                           name="year_filter" 
+                           class="form-control" 
+                           placeholder="📅 Enter year (e.g., 2021)"
+                           min="1900"
+                           max="2100"
+                           value="{{ request.form.get('year_filter', '') }}">
+                </div>
+
+                <!-- Department Filter Input -->
+                <div class="col-md-4">
+                    <input type="text" 
+                           name="department_filter" 
+                           class="form-control" 
+                           placeholder="🏢 Enter department..."
+                           value="{{ request.form.get('department_filter', '') }}">
+                </div>
+
+                <!-- Search Button -->
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">🔎 Search</button>
+                </div>
+            </div>
+        </form>
+
+        <hr>
+
+        <!-- Results Section -->
+        {% if results %}
+            <h4 class="mb-3">📋 Found {{ results|length }} Result{{ 's' if results|length != 1 else '' }}:</h4>
+
+            <div class="row">
+            {% for p in results %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card profile-card h-100">
+                        <div class="card-body">
+                            <!-- Name and Type -->
+                            <h5 class="card-title">{{ p['first_name'] }} {{ p['last_name'] }}</h5>
+                            
+                            <!-- Type and Status Badges -->
+                            <div class="mb-2">
+                                <span class="badge badge-type" style="background-color: 
+                                    {% if p['type'] == 'Student' %}#0d6efd
+                                    {% elif p['type'] == 'PhD' %}#6f42c1
+                                    {% elif p['type'] == 'Faculty' %}#198754
+                                    {% elif p['type'] == 'Staff' %}#fd7e14
+                                    {% else %}#6c757d
+                                    {% endif %}">
+                                    {{ p['type'] }}
+                                </span>
+                                <span class="badge badge-status" style="background-color: 
+                                    {% if p['status'] == 'Active' %}#198754
+                                    {% elif p['status'] == 'Pending' %}#ffc107
+                                    {% elif p['status'] == 'Suspended' %}#fd7e14
+                                    {% elif p['status'] == 'Inactive' %}#6c757d
+                                    {% elif p['status'] == 'Archived' %}#dc3545
+                                    {% endif %}">
+                                    {{ p['status'] }}
+                                </span>
+                            </div>
+                            
+                            <!-- Contact Info -->
+                            <p class="card-text text-muted small">
+                                <strong>Email:</strong> {{ p['email'] }}<br>
+                                {% if p['phone'] %}<strong>Phone:</strong> {{ p['phone'] }}<br>{% endif %}
+                                <strong>ID:</strong> <code>{{ p['id'] }}</code>
+                            </p>
+
+                            <!-- Type-specific Info -->
+                            <div class="small mb-2">
+                                {% if p['type'] == 'Student' or p['type'] == 'PhD' %}
+                                    {% if p['entry_year'] %}<div>📅 Entry: {{ p['entry_year'] }}</div>{% endif %}
+                                    {% if p['national_id'] %}<div>🆔 ID: {{ p['national_id'] }}</div>{% endif %}
+                                {% elif p['type'] == 'Faculty' %}
+                                    {% if p['faculty_rank'] %}<div>📊 Rank: {{ p['faculty_rank'] }}</div>{% endif %}
+                                    {% if p['primary_department'] %}<div>🏢 Dept: {{ p['primary_department'] }}</div>{% endif %}
+                                {% elif p['type'] == 'Staff' %}
+                                    {% if p['job_title'] %}<div>💼 Job: {{ p['job_title'] }}</div>{% endif %}
+                                    {% if p['staff_department'] %}<div>🏢 Dept: {{ p['staff_department'] }}</div>{% endif %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="mt-3 d-flex gap-2">
+                                <a href="/view/{{ p['id'] }}" class="btn btn-sm btn-info flex-grow-1">
+                                    👁️ View Profile
+                                </a>
+                                <a href="/edit/{{ p['id'] }}" class="btn btn-sm btn-warning flex-grow-1">
+                                    ✏️ Edit
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+
+        {% elif request.method == 'POST' %}
+            <div class="alert alert-info text-center">
+                <strong>No results found.</strong> Try adjusting your search criteria.
+            </div>
+        {% endif %}
+
+        <!-- Navigation -->
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-outline-secondary">← Back to Home</a>
+            <a href="/view_all" class="btn btn-outline-info">View All</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
